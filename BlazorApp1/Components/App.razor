@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <base href="/"/>
+    <link rel="stylesheet" href="app.css"/>
+    <link rel="stylesheet" href="BlazorApp1.styles.css"/>
+    <HeadOutlet/>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+<link href="_content/MudBlazor.ThemeManager/MudBlazorThemeManager.css" rel="stylesheet" />
+</head>
+
+<body>`
+<Routes/>
+
+
+<script>
+    window.scrollToBottom = (element) => {
+        element.scrollTop = element.scrollHeight;
+        
+        // find all elements with the attribute OnClickDoCommand that do not have an onclick handler
+        let elements = document.querySelectorAll('[OnClickDoCommand]:not([onclick])');
+    };
+    window.addStyles = (css) => {
+        let style = document.createElement('style');
+        style.id = 'dynamic-styles';
+        style.type = 'text/css';
+        style.innerHTML = css;
+        
+        // Remove the previous styles
+        let previousStyles = document.getElementById('dynamic-styles');
+        if (previousStyles) {
+            previousStyles.remove();
+        }
+        document.head.appendChild(style);
+    };
+
+    window.addClickEvents = () => {
+        // find all elements with the attribute OnClickDoCommand
+        let elements = document.querySelectorAll('[oncommand]');
+        elements.forEach((element) => {
+            element.onclick = () => {
+                let command = element.getAttribute('oncommand');
+                DotNet.invokeMethodAsync('BlazorApp1', 'SendCommandToServer', command);
+            };
+        });
+    };
+    
+    
+</script>
+<script>process = undefined;</script>
+<script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>

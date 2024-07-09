@@ -6,20 +6,11 @@ public class Settings<T> : ISettings<T> where T : class
 {
     Dictionary<string,T>? settings = new Dictionary<string,T>();
 
-    public T? get(string key)
+    public T? Get(string key)
     {
         if (settings == null)
         {
-            var filename = typeof(T).Name + ".json";
-            if (File.Exists(filename))
-            {
-                var json = File.ReadAllText(filename);
-                settings = JsonConvert.DeserializeObject<Dictionary<string, T>>(json);
-            }
-            else
-            {
-                settings = new Dictionary<string, T>();
-            }
+            Load();
         }
 
         if (settings.TryGetValue(key, out T value))
@@ -30,9 +21,32 @@ public class Settings<T> : ISettings<T> where T : class
         return null;
     }
 
-    public void set(string key, T value)
+    private Dictionary<string, T> Load()
     {
-        // Implementation to set the setting value by key
-        throw new NotImplementedException();
+        var filename = typeof(T).Name + ".json";
+        if (File.Exists(filename))
+        {
+            var json = File.ReadAllText(filename);
+            return JsonConvert.DeserializeObject<Dictionary<string, T>>(json) ?? new Dictionary<string, T>();
+        }
+        else
+        {
+            return new Dictionary<string, T>();
+        }
+
+    }
+
+    public void Set(string key, T value)
+    {
+        if (settings == null)
+        {
+            settings = Load();
+        }
+
+        settings[key] = value;
+
+        var filename = typeof(T).Name + ".json";
+        var json = JsonConvert.SerializeObject(settings);
+        File.WriteAllText(filename, json);
     }
 }

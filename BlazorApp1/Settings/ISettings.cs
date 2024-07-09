@@ -2,7 +2,7 @@
 
 public interface ISettings<T> where T : class
 {
-    T get(string key);
-    void set(string key, T value);
+    T? Get(string key);
+    void Set(string key, T value);
 
 }

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using BlazorApp1.Components;
 using BlazorApp1.Settings;
 using Blazored.LocalStorage;
@@ -14,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
+builder.Services.AddMudPopoverService();
 
 
 builder.Services.AddSingleton<CircuitHandler, CustomCircuitHandler>();
@@ -21,8 +24,17 @@ builder.Services.AddSingleton<CircuitHandler, CustomCircuitHandler>();
         // Add Electron
         builder.WebHost.UseElectron(args);
         builder.Services.AddElectron();
-        builder.Services.AddBlazoredLocalStorage();
-        builder.Services.AddSingleton<ISettings, Settings>();
+        builder.Services.AddBlazoredLocalStorage(config =>
+        {
+            config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+            config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+            config.JsonSerializerOptions.WriteIndented = false;
+        });
+        builder.Services.AddScoped<ISettings, Settings>();
 
         // AllowAny Cors
         builder.Services.AddCors(options =>
@@ -50,20 +62,23 @@ var app = builder.Build();
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
-    var options = new BrowserWindowOptions
+    if(HybridSupport.IsElectronActive)
     {
-        WebPreferences = new WebPreferences
+        var options = new BrowserWindowOptions
         {
-            WebSecurity = false,
-            NodeIntegration = true
-        }
-    };
+            WebPreferences = new WebPreferences
+            {
+                WebSecurity = false,
+                NodeIntegration = true
+            }
+        };
+        var window = await Electron.WindowManager.CreateWindowAsync(options);  
+        window.OnClosed += () => {  
+            Electron.App.Quit();  
+        }; 
+    }
     
-    var window = await Electron.WindowManager.CreateWindowAsync(options);  
-    window.OnClosed += () => {  
-        Electron.App.Quit();  
-    }; 
+
 
 //app.UseHttpsRedirection();
 

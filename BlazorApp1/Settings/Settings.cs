@@ -6,10 +6,10 @@ namespace BlazorApp1.Settings;
 
 public class Settings : ISettings
 {
-    // tuple to store key, type and object
+
     private List<(string key, Type type, object value)>? _settings;
-    private ILocalStorageService _localStorage;
-    private readonly bool _isElectron = ElectronNET.API.HybridSupport.IsElectronActive;
+    private readonly ILocalStorageService _localStorage;
+    private static bool IsElectron => ElectronNET.API.HybridSupport.IsElectronActive;
 
     private readonly string _filePath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "settings.json");
@@ -18,21 +18,37 @@ public class Settings : ISettings
 
     private async Task<List<(string key, Type type, object value)>> Load()
     {
-        if (_isElectron)
-            if (File.Exists(_filePath))
+        try
+        {
+            if (IsElectron)
             {
-                var json = await File.ReadAllTextAsync(_filePath);
-                return JsonConvert.DeserializeObject<List<(string key, Type type, object value)>>(json) ??
-                       new List<(string key, Type type, object value)>();
+                if (File.Exists(_filePath))
+                {
+                    var json = await File.ReadAllTextAsync(_filePath);
+                    return JsonConvert.DeserializeObject<List<(string key, Type type, object value)>>(json) ??
+                           new List<(string key, Type type, object value)>();
+                }
             }
+            else
+            {
+                var settings =
+                    await _localStorage.GetItemAsync<List<(string key, Type type, object value)>>("userSettings");
+                return settings ?? new List<(string key, Type type, object value)>();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the exception or handle it as needed
+            Console.WriteLine($"An error occurred while loading settings: {ex.Message}");
+            return new List<(string key, Type type, object value)>();
+        }
 
-        return await _localStorage.GetItemAsync<List<(string key, Type type, object value)>>("userSettings") ??
-               new List<(string key, Type type, object value)>();
+        return new List<(string key, Type type, object value)>();
     }
 
     private async Task Save()
     {
-        if (_isElectron)
+        if (IsElectron)
         {
             var json = JsonConvert.SerializeObject(_settings);
             await File.WriteAllTextAsync(_filePath, json);

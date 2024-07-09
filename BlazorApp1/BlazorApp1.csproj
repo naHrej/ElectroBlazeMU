@@ -8,6 +8,10 @@
     <Folder Include="MuTcpClient\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Components\**\*.js">
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="dotless.Core" Version="1.6.7" />
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
@@ -20,4 +24,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
 </Project>

@@ -1,0 +1,26 @@
+﻿@rendermode InteractiveServer
+
+<h3></h3>
+    @if(Sites != null)
+    {
+        @foreach (var site in Sites)
+        {
+            <MudCard>
+                <MudCardHeader>
+                    <MudText Typo="Typo.h6">@site.Name</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2">@site.Host.ToString()</MudText>
+                    <MudCheckBox T="bool" bind-Value="@site.AutoConnect"></MudCheckBox>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => EditSite(site)">Edit</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="() => DeleteSite(site)">Delete</MudButton>
+                </MudCardActions>
+            </MudCard>
+        }
+    }
+    
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddSite">Add Site</MudButton>
+    
+

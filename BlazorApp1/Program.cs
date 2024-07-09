@@ -1,4 +1,6 @@
 using BlazorApp1.Components;
+using BlazorApp1.Settings;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
@@ -19,6 +21,8 @@ builder.Services.AddSingleton<CircuitHandler, CustomCircuitHandler>();
         // Add Electron
         builder.WebHost.UseElectron(args);
         builder.Services.AddElectron();
+        builder.Services.AddBlazoredLocalStorage();
+        builder.Services.AddSingleton<ISettings, Settings>();
 
         // AllowAny Cors
         builder.Services.AddCors(options =>

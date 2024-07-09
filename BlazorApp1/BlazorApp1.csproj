@@ -8,6 +8,7 @@
     <Folder Include="MuTcpClient\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="dotless.Core" Version="1.6.7" />
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />

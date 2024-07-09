@@ -1,47 +1,76 @@
-﻿using Newtonsoft.Json;
+﻿using Blazored.LocalStorage;
+using ElectronNET.API;
+using Newtonsoft.Json;
 
 namespace BlazorApp1.Settings;
 
-public class Settings<T> : ISettings<T> where T : class
+public class Settings : ISettings
 {
-    Dictionary<string,T>? settings = new Dictionary<string,T>();
+    // tuple to store key, type and object
+    private List<(string key, Type type, object value)>? _settings;
+    private ILocalStorageService _localStorage;
+    private readonly bool _isElectron = ElectronNET.API.HybridSupport.IsElectronActive;
 
-    public T? Get(string key)
+    private readonly string _filePath =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "settings.json");
+
+    public Settings(ILocalStorageService localStorageService) => _localStorage = localStorageService;
+
+    private async Task<List<(string key, Type type, object value)>> Load()
     {
-        if (settings == null)
-        {
-            settings = Load();
-        }
+        if (_isElectron)
+            if (File.Exists(_filePath))
+            {
+                var json = await File.ReadAllTextAsync(_filePath);
+                return JsonConvert.DeserializeObject<List<(string key, Type type, object value)>>(json) ??
+                       new List<(string key, Type type, object value)>();
+            }
 
-        return settings.GetValueOrDefault(key);
+        return await _localStorage.GetItemAsync<List<(string key, Type type, object value)>>("userSettings") ??
+               new List<(string key, Type type, object value)>();
     }
 
-    private Dictionary<string, T> Load()
+    private async Task Save()
     {
-        var filename = typeof(T).Name + ".json";
-        if (File.Exists(filename))
+        if (_isElectron)
         {
-            var json = File.ReadAllText(filename);
-            return JsonConvert.DeserializeObject<Dictionary<string, T>>(json) ?? new Dictionary<string, T>();
+            var json = JsonConvert.SerializeObject(_settings);
+            await File.WriteAllTextAsync(_filePath, json);
         }
         else
         {
-            return new Dictionary<string, T>();
+            // save to localStorage
+            await _localStorage.SetItemAsync("userSettings", _settings);
         }
-
     }
 
-    public void Set(string key, T value)
+    public async Task<List<(string key, Type type, object value)>> Get(string key)
     {
-        if (settings == null)
+        if (_settings == null)
         {
-            settings = Load();
+            _settings = await Load();
         }
 
-        settings[key] = value;
+        return _settings.Where(s => s.key == key).ToList();
+    }
 
-        var filename = typeof(T).Name + ".json";
-        var json = JsonConvert.SerializeObject(settings);
-        File.WriteAllText(filename, json);
+    public async Task Set(string key, object value)
+    {
+        if (_settings == null)
+        {
+            _settings = await Load();
+        }
+
+        var setting = _settings.FirstOrDefault(s => s.key == key);
+        if (setting.key == null)
+        {
+            _settings.Add((key, value.GetType(), value));
+        }
+        else
+        {
+            setting.value = value;
+        }
+
+        await Save();
     }
 }

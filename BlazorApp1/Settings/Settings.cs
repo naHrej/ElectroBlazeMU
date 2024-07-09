@@ -10,15 +10,10 @@ public class Settings<T> : ISettings<T> where T : class
     {
         if (settings == null)
         {
-            Load();
+            settings = Load();
         }
 
-        if (settings.TryGetValue(key, out T value))
-        {
-            return value;
-        }
-
-        return null;
+        return settings.GetValueOrDefault(key);
     }
 
     private Dictionary<string, T> Load()

@@ -7,10 +7,10 @@ namespace BlazorApp1.Components;
 public partial class SiteManager : ComponentBase
 {
     [Inject] private ISettings Settings { get; set; } = null!;
-    private List<Site> _sites;
-    private List<Site> Sites { get => _sites; set { _sites = value; SaveSites(); } }
-    private bool isEditing = false;
-    private Site? editingSite = null;
+    private List<Site>? _sites;
+    private List<Site>? Sites { get => _sites; set { _sites = value; SaveSites(); } }
+    private bool _isEditing = false;
+    private Site? _editingSite = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) 
     {
@@ -44,8 +44,8 @@ public partial class SiteManager : ComponentBase
 
     private async Task EditSite(Site site)
     {
-        isEditing = true;
-        editingSite = site;
+        _isEditing = true;
+        _editingSite = site;
         await InvokeAsync(StateHasChanged);
         
     }

@@ -70,14 +70,14 @@ public class Settings : ISettings
         return _settings.Where(s => s.key == key).ToList();
     }
 
-    public async Task Set(string key, object value)
+    public async Task Set(string key, object? value)
     {
         if (_settings == null)
         {
             _settings = await Load();
         }
 
-        var setting = _settings.FirstOrDefault(s => s.key == key);
+        (string key, Type type, object? value) setting = _settings.FirstOrDefault(s => s.key == key);
         if (setting.key == null)
         {
             _settings.Add((key, value.GetType(), value));

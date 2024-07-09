@@ -27,14 +27,14 @@ public partial class SiteManager : ComponentBase
     {
         Sites.Add(new Site());
         SaveSites();
-        await Task.Run(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
         
     }
     
     private async Task RemoveSite(Site site)
     {
         Sites.Remove(site);
-        await Task.Run(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
     
     private void SaveSites()
@@ -46,7 +46,7 @@ public partial class SiteManager : ComponentBase
     {
         isEditing = true;
         editingSite = site;
-        await Task.Run(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
         
     }
     
@@ -54,7 +54,7 @@ public partial class SiteManager : ComponentBase
     {
         Sites.Remove(site);
         SaveSites();
-        await Task.Run(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
     
     

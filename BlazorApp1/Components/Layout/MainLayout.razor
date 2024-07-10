@@ -1,14 +1,88 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider/>
+
+<MudThemeProvider @ref="_themeProvider" Theme="currentTheme" IsDarkMode="isDarkMode"/>
+
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
+<MudLayout>
+    <MudAppBar Elevation="_themeManager.AppBarElevation">
+        
+        <MudSpacer/>
+        <MudSwitch @bind-Value="isDarkMode"
+                   ThumbIcon="@(isDarkMode == true ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+                   ThumbIconColor="@(isDarkMode == true ? Color.Success : Color.Error)"/>
+    </MudAppBar>
+    
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
 
-    @Body
+@code
+{
+    MudThemeProvider _themeProvider;
+    MudSwitch<bool> _switch;
+    MudThemeManager _themeManagerOpt;
+    public bool isDarkMode { get; set; } = true;
+    private ThemeManagerTheme _themeManager = new();
+    
 
- 
+    MudTheme currentTheme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Black = "#272c34"
+        },
+        PaletteDark = new PaletteDark
+        {
+            Black = "#1d343b",
+            Background = "#0b1417",
+            BackgroundGray = "#25363b",
+            Divider = "#5a5d5e",
+            ActionDisabled = "#5a5d5e",
+            ActionDisabledBackground = "#192e36",
+            TextDisabled = "#5a5d5e",
+            DarkContrastText = "#5a5d5e",
+            DarkLighten = "#0f4659",
+            DarkDarken = "#0f4659",
+            TableStriped = "#1f3e47",
+            TableHover = "#1a2b30",
+            DrawerIcon = "#192e36",
+            ActionDefault = "#578091",
+            InfoContrastText = "#5d7b87",
+            TableLines = "#214752",
+            Surface = "#1a363d",
+            TextPrimary = "#5d7b87",
+            TextSecondary = "#1885ab",
+            Primary = "#457e85",
+            AppbarBackground = "#0f4659",
+            Dark = "#0f4659",
+            Secondary = "#2c4147",
+            DrawerText = "#87d4f5",
+            DrawerBackground = "#144452",
+            AppbarText = "#698185",
+            Success = "#2a672f",
+            LinesInputs = "#053c63",
+        }
+    };
 
-@code {
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isDarkMode = await _themeProvider.GetSystemPreference();
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
 }
